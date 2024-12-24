@@ -1,8 +1,7 @@
 """Module for finding files to upload."""
 import os
-import glob
+from typing import List, Tuple
 import logging
-from typing import List, Dict, Tuple
 
 def find_tiff_files(base_dir: str) -> List[Tuple[str, str]]:
     """Find all TIFF files in the given directory and its subdirectories.
@@ -22,8 +21,6 @@ def find_tiff_files(base_dir: str) -> List[Tuple[str, str]]:
         raise FileNotFoundError(f"Directory not found: {base_dir}")
 
     result = []
-    
-    # Look for tiff files in regions and regions_buildings subdirectories
     subdirs = ['regions', 'regions_buildings']
     
     for subdir in subdirs:
@@ -32,19 +29,23 @@ def find_tiff_files(base_dir: str) -> List[Tuple[str, str]]:
             logging.warning(f"Subdirectory not found: {dir_path}")
             continue
             
-        # Find all .tif files in the subdirectory
-        pattern = os.path.join(dir_path, "*.tif")
-        tif_files = glob.glob(pattern)
-        
-        if not tif_files:
-            logging.warning(f"No .tif files found in {dir_path}")
+        # Use scandir which is more efficient than glob
+        try:
+            with os.scandir(dir_path) as entries:
+                tif_count = 0
+                for entry in entries:
+                    if entry.is_file() and entry.name.lower().endswith('.tif'):
+                        result.append((entry.path, subdir))
+                        tif_count += 1
+                
+                if tif_count == 0:
+                    logging.warning(f"No .tif files found in {dir_path}")
+                else:
+                    logging.info(f"Found {tif_count} TIFF files in {subdir}/")
+                    
+        except PermissionError:
+            logging.error(f"Permission denied accessing {dir_path}")
             continue
-            
-        # Add files with their prefix
-        for file_path in tif_files:
-            result.append((file_path, subdir))
-        
-        logging.info(f"Found {len(tif_files)} TIFF files in {subdir}/")
     
     if not result:
         logging.warning(f"No TIFF files found in any subdirectory of {base_dir}")
