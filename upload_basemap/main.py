@@ -2,6 +2,7 @@
 """Main entry point for basemap upload tool."""
 import os
 import logging
+from dotenv import load_dotenv
 from .src.file_finder import find_tiff_files
 from .src.s3_upload import upload_to_s3
 from .src.upload_tracker import UploadTracker
@@ -15,11 +16,14 @@ logging.basicConfig(
 def main():
     """Main entry point for the upload script."""
     try:
+        # Load environment variables from .env file
+        load_dotenv()
+        
         # Get bucket name from environment variable
         bucket_name = os.environ.get('BUCKET_NAME')
         basemaps_dir = os.environ.get('BASEMAPS_DIR')
         if not bucket_name or not basemaps_dir:
-            raise ValueError("BUCKET_NAME or BASEMAPS_DIR not found in environment variables")
+            raise ValueError("BUCKET_NAME or BASEMAPS_DIR not found in environment variables. Please create a .env file with these variables.")
 
         
         # Initialize upload tracker
