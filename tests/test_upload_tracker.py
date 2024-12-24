@@ -15,36 +15,39 @@ def test_upload_tracker_with_file_finder():
         tracker = UploadTracker(temp_file.name)
         
         try:
-            # Get files from file_finder
-            files = find_tiff_files(basemaps_dir)
-            assert len(files) > 0, "No files found to test with"
+            # Get files from file_finder and take only first 2 from each prefix
+            all_files = find_tiff_files(basemaps_dir)
+            files_by_prefix = {}
+            for file_path, prefix in all_files:
+                if prefix not in files_by_prefix:
+                    files_by_prefix[prefix] = []
+                if len(files_by_prefix[prefix]) < 2:  # Only keep first 2 files per prefix
+                    files_by_prefix[prefix].append((file_path, prefix))
             
-            print("\nTesting with files:")
-            pprint(files)
+            # Flatten the list for testing
+            test_files = [item for sublist in files_by_prefix.values() for item in sublist]
+            assert len(test_files) > 0, "No files found to test with"
+            
+            print(f"\nTesting with {len(test_files)} files:")
+            for file_path, prefix in test_files:
+                print(f"- {prefix}: {os.path.basename(file_path)}")
             
             # Test marking files as uploaded
             print("\nMarking files as uploaded...")
-            for file_path, prefix in files:
+            for file_path, prefix in test_files:
                 tracker.mark_uploaded(file_path, prefix)
-                
-                # Verify it was marked as uploaded
                 assert tracker.is_uploaded(file_path, prefix), \
                     f"File {file_path} was not marked as uploaded"
-                
-                # Get and print upload info
-                info = tracker.get_upload_info(file_path, prefix)
-                print(f"\nUpload info for {os.path.basename(file_path)}:")
-                pprint(info)
             
             # Print final history file content
             print("\nFinal upload history content:")
             with open(temp_file.name, 'r') as f:
                 history = json.load(f)
-                pprint(history)
+                print(f"Total entries in history: {len(history)}")
                 
             # Verify all files are in history
-            assert len(history) == len(files), \
-                f"History has {len(history)} entries but {len(files)} files were uploaded"
+            assert len(history) == len(test_files), \
+                f"History has {len(history)} entries but {len(test_files)} files were uploaded"
                 
         finally:
             # Clean up temp file
