@@ -43,6 +43,8 @@ Run the upload script:
 
 ```bash
 poetry run python -m upload_basemap.main
+# or simply
+poetry run upload-basemap
 ```
 
 The script will:
