@@ -8,8 +8,10 @@ def test_upload_to_s3():
     if not bucket_name:
         raise ValueError("BUCKET_NAME not found in environment variables")
 
-    # Path to the image file
-    file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "region_5046600.tif")
+    # Path to the test image file
+    file_path = os.path.join(os.path.dirname(__file__), "test_data", "region_5046600.tif")
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Test file not found: {file_path}")
     
     # Set the prefix (folder) in S3 where the file will be uploaded
     prefix = "test_uploads"
