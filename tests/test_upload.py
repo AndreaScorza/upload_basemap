@@ -1,5 +1,5 @@
 import os
-from main import upload_to_s3
+from upload_basemap.src.s3_upload import upload_to_s3
 
 def test_upload_to_s3():
     """Test uploading a file to S3."""

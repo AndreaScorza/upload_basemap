@@ -1,10 +1,24 @@
+"""Module for handling S3 uploads."""
+
 import logging
 import boto3
-from botocore.exceptions import BotoCoreError, ClientError
 import os
+from botocore.exceptions import BotoCoreError, ClientError
 
-def upload_to_s3(file_path: str, bucket_name: str, prefix: str):
-    """Uploads a local file to an S3 bucket with optional KMS encryption."""
+
+def upload_to_s3(file_path: str, bucket_name: str, prefix: str) -> None:
+    """Upload a local file to an S3 bucket with KMS encryption.
+    
+    Args:
+        file_path: Path to the local file to upload
+        bucket_name: Name of the S3 bucket
+        prefix: Prefix (folder path) in the S3 bucket
+    
+    Raises:
+        FileNotFoundError: If the local file doesn't exist
+        BotoCoreError: If there's an AWS-related error
+        ClientError: If there's an S3 client error
+    """
     try:
         s3_client = boto3.client("s3")
         
