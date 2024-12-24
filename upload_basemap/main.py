@@ -17,11 +17,10 @@ def main():
     try:
         # Get bucket name from environment variable
         bucket_name = os.environ.get('BUCKET_NAME')
-        if not bucket_name:
-            raise ValueError("BUCKET_NAME not found in environment variables")
+        basemaps_dir = os.environ.get('BASEMAPS_DIR')
+        if not bucket_name or not basemaps_dir:
+            raise ValueError("BUCKET_NAME or BASEMAPS_DIR not found in environment variables")
 
-        # Source directory for basemaps
-        basemaps_dir = "/cephfs/pimsys/coregistration/basemaps"
         
         # Initialize upload tracker
         tracker = UploadTracker()
