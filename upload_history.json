@@ -58,5 +58,270 @@
     "uploaded_at": "2024-12-27T09:39:20.003783",
     "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10183120.tif",
     "prefix": "regions"
+  },
+  "regions/region_10440149.tif": {
+    "uploaded_at": "2024-12-27T09:41:00.848300",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10440149.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10436195.tif": {
+    "uploaded_at": "2024-12-27T09:41:01.503056",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10436195.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10382346.tif": {
+    "uploaded_at": "2024-12-27T09:41:02.205575",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10382346.tif",
+    "prefix": "regions"
+  },
+  "regions/region_8940251.tif": {
+    "uploaded_at": "2024-12-27T09:41:02.880139",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_8940251.tif",
+    "prefix": "regions"
+  },
+  "regions/region_9872108.tif": {
+    "uploaded_at": "2024-12-27T09:41:08.358099",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_9872108.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10425928.tif": {
+    "uploaded_at": "2024-12-27T09:41:09.043519",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10425928.tif",
+    "prefix": "regions"
+  },
+  "regions/region_11716837.tif": {
+    "uploaded_at": "2024-12-27T09:41:09.863009",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_11716837.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5088595.tif": {
+    "uploaded_at": "2024-12-27T09:41:10.839484",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5088595.tif",
+    "prefix": "regions"
+  },
+  "regions/region_9222981.tif": {
+    "uploaded_at": "2024-12-27T09:41:11.577922",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_9222981.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10401952.tif": {
+    "uploaded_at": "2024-12-27T09:41:12.899272",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10401952.tif",
+    "prefix": "regions"
+  },
+  "regions/region_11627186.tif": {
+    "uploaded_at": "2024-12-27T09:41:13.651709",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_11627186.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10300812.tif": {
+    "uploaded_at": "2024-12-27T09:41:14.706018",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10300812.tif",
+    "prefix": "regions"
+  },
+  "regions/region_11619506.tif": {
+    "uploaded_at": "2024-12-27T09:41:41.028736",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_11619506.tif",
+    "prefix": "regions"
+  },
+  "regions/region_11641432.tif": {
+    "uploaded_at": "2024-12-27T09:41:41.686098",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_11641432.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10419373.tif": {
+    "uploaded_at": "2024-12-27T09:41:42.323759",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10419373.tif",
+    "prefix": "regions"
+  },
+  "regions/region_9292946.tif": {
+    "uploaded_at": "2024-12-27T09:41:43.083717",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_9292946.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10994747.tif": {
+    "uploaded_at": "2024-12-27T09:41:44.111121",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10994747.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5728667.tif": {
+    "uploaded_at": "2024-12-27T09:41:44.672649",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5728667.tif",
+    "prefix": "regions"
+  },
+  "regions/region_11272092.tif": {
+    "uploaded_at": "2024-12-27T09:41:45.206888",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_11272092.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5650305.tif": {
+    "uploaded_at": "2024-12-27T09:41:46.080194",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5650305.tif",
+    "prefix": "regions"
+  },
+  "regions/region_11713500.tif": {
+    "uploaded_at": "2024-12-27T09:41:46.737580",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_11713500.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5251916.tif": {
+    "uploaded_at": "2024-12-27T09:41:47.582994",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5251916.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10998532.tif": {
+    "uploaded_at": "2024-12-27T09:41:48.236412",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10998532.tif",
+    "prefix": "regions"
+  },
+  "regions/region_9390742.tif": {
+    "uploaded_at": "2024-12-27T09:41:48.900330",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_9390742.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10404219.tif": {
+    "uploaded_at": "2024-12-27T09:41:49.788313",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10404219.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10414379.tif": {
+    "uploaded_at": "2024-12-27T09:41:50.496542",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10414379.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10394626.tif": {
+    "uploaded_at": "2024-12-27T09:41:51.379309",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10394626.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10399298.tif": {
+    "uploaded_at": "2024-12-27T09:41:51.999328",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10399298.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10377480.tif": {
+    "uploaded_at": "2024-12-27T09:41:52.652971",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10377480.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10431143.tif": {
+    "uploaded_at": "2024-12-27T09:41:53.389802",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10431143.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10402362.tif": {
+    "uploaded_at": "2024-12-27T09:41:54.454348",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10402362.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10368337.tif": {
+    "uploaded_at": "2024-12-27T09:41:55.135104",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10368337.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10801566.tif": {
+    "uploaded_at": "2024-12-27T09:41:55.997565",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10801566.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5620965.tif": {
+    "uploaded_at": "2024-12-27T09:41:56.681096",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5620965.tif",
+    "prefix": "regions"
+  },
+  "regions/region_7345661.tif": {
+    "uploaded_at": "2024-12-27T09:41:57.349737",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_7345661.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5620756.tif": {
+    "uploaded_at": "2024-12-27T09:41:58.027418",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5620756.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5984493.tif": {
+    "uploaded_at": "2024-12-27T09:41:59.065781",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5984493.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10370921.tif": {
+    "uploaded_at": "2024-12-27T09:42:00.020558",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10370921.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5638278.tif": {
+    "uploaded_at": "2024-12-27T09:42:00.846953",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5638278.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5621154.tif": {
+    "uploaded_at": "2024-12-27T09:42:01.640320",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5621154.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10376545.tif": {
+    "uploaded_at": "2024-12-27T09:42:02.356861",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10376545.tif",
+    "prefix": "regions"
+  },
+  "regions/region_8965193.tif": {
+    "uploaded_at": "2024-12-27T09:42:03.223248",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_8965193.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10409803.tif": {
+    "uploaded_at": "2024-12-27T09:42:04.098919",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10409803.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10378293.tif": {
+    "uploaded_at": "2024-12-27T09:42:05.163594",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10378293.tif",
+    "prefix": "regions"
+  },
+  "regions/region_11642089.tif": {
+    "uploaded_at": "2024-12-27T09:42:05.817028",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_11642089.tif",
+    "prefix": "regions"
+  },
+  "regions/region_9767791.tif": {
+    "uploaded_at": "2024-12-27T09:42:06.517425",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_9767791.tif",
+    "prefix": "regions"
+  },
+  "regions/region_11047433.tif": {
+    "uploaded_at": "2024-12-27T09:42:07.222317",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_11047433.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10802761.tif": {
+    "uploaded_at": "2024-12-27T09:42:08.256770",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10802761.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10393796.tif": {
+    "uploaded_at": "2024-12-27T09:42:09.028509",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10393796.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5188818.tif": {
+    "uploaded_at": "2024-12-27T09:42:10.320244",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5188818.tif",
+    "prefix": "regions"
+  },
+  "regions/region_11635726.tif": {
+    "uploaded_at": "2024-12-27T09:42:11.292260",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_11635726.tif",
+    "prefix": "regions"
+  },
+  "regions/region_11080161.tif": {
+    "uploaded_at": "2024-12-27T09:42:11.972784",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_11080161.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5629943.tif": {
+    "uploaded_at": "2024-12-27T09:42:12.617928",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5629943.tif",
+    "prefix": "regions"
   }
 }
