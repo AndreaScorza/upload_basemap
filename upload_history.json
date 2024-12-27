@@ -1,0 +1,62 @@
+{
+  "regions/region_10376480.tif": {
+    "uploaded_at": "2024-12-27T09:38:35.532175",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10376480.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10431443.tif": {
+    "uploaded_at": "2024-12-27T09:38:36.660202",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10431443.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5688470.tif": {
+    "uploaded_at": "2024-12-27T09:38:37.214735",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5688470.tif",
+    "prefix": "regions"
+  },
+  "regions/region_9323317.tif": {
+    "uploaded_at": "2024-12-27T09:38:38.248655",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_9323317.tif",
+    "prefix": "regions"
+  },
+  "regions/region_11720771.tif": {
+    "uploaded_at": "2024-12-27T09:38:38.791699",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_11720771.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10438099.tif": {
+    "uploaded_at": "2024-12-27T09:38:39.405349",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10438099.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10389130.tif": {
+    "uploaded_at": "2024-12-27T09:38:40.127538",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10389130.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5727067.tif": {
+    "uploaded_at": "2024-12-27T09:38:41.138642",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5727067.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5641438.tif": {
+    "uploaded_at": "2024-12-27T09:38:41.687827",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5641438.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10393443.tif": {
+    "uploaded_at": "2024-12-27T09:39:18.633677",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10393443.tif",
+    "prefix": "regions"
+  },
+  "regions/region_5657303.tif": {
+    "uploaded_at": "2024-12-27T09:39:19.298086",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_5657303.tif",
+    "prefix": "regions"
+  },
+  "regions/region_10183120.tif": {
+    "uploaded_at": "2024-12-27T09:39:20.003783",
+    "original_path": "/cephfs/pimsys/coregistration/basemaps/regions/region_10183120.tif",
+    "prefix": "regions"
+  }
+}
