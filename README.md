@@ -4,11 +4,11 @@ A Python tool for uploading TIFF basemap files to S3 while maintaining directory
 
 ## Features
 
-- Scans specified directories (`regions` and `regions_buildings`) for TIFF files
-- Maintains directory structure when uploading to S3
-- Tracks upload history to avoid re-uploading files
-- Uses AWS KMS encryption for secure storage
-- Provides detailed logging of the upload process
+- Efficient upload of large files to AWS S3
+- Automatic handling of multipart uploads for large files
+- Progress tracking for long-running uploads
+- AWS credentials are managed securely through environment variables or IAM roles
+- Upload history is stored in PostgreSQL for reliability and concurrent access
 
 ## Installation
 
@@ -52,7 +52,7 @@ The script will:
 2. Upload new files to S3 maintaining the directory structure:
    - Files in `regions/` → `s3://bucket-name/regions/`
    - Files in `regions_buildings/` → `s3://bucket-name/regions_buildings/`
-3. Track uploaded files in `upload_history.json`
+3. Track uploaded files in PostgreSQL
 4. Log the process to stdout
 
 ## Directory Structure
@@ -116,7 +116,59 @@ All errors are logged with appropriate context for debugging.
 
 - Files are uploaded with AWS KMS encryption
 - AWS credentials are managed securely through environment variables or IAM roles
-- Upload history is stored locally in JSON format
+- Upload history is stored securely in PostgreSQL
+
+## Database Management
+
+The application uses PostgreSQL to track uploaded files. The database runs in Docker and is automatically initialized with data from `db_backup/upload_tracker_backup.sql`.
+
+### Starting the Database
+
+To start the PostgreSQL database:
+
+```bash
+docker-compose up -d
+```
+
+This will:
+1. Start a PostgreSQL container
+2. Initialize it with data from `db_backup/upload_tracker_backup.sql` (if present)
+3. Store the database files in `./db_data/`
+
+### Backing Up the Database
+
+To create a new backup of the current database state:
+
+```bash
+poetry run python scripts/backup_db.py
+```
+
+This will create/update the file `db_backup/upload_tracker_backup.sql`. This file is versioned in git and used to initialize new instances of the database.
+
+### Restoring the Database
+
+If you need to restore the database from the backup:
+
+```bash
+poetry run python scripts/restore_db.py
+```
+
+### Resetting the Database
+
+To completely reset the database:
+
+```bash
+# Stop the container
+docker-compose down
+
+# Remove the data directory
+rm -rf db_data
+
+# Start fresh
+docker-compose up -d
+```
+
+This will give you a fresh database initialized with the data from `db_backup/upload_tracker_backup.sql`.
 
 ## Contributing
 
