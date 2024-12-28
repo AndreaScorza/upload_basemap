@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: upload_tracker
+      POSTGRES_USER: upload_user
+      POSTGRES_PASSWORD: upload_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      # Mount local directory instead of Docker volume
+      - ./db_data:/var/lib/postgresql/data
+      # Mount initialization scripts
+      - ./db_backup:/docker-entrypoint-initdb.d
+
+volumes:
+  postgres_data:

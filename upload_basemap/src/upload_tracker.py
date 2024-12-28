@@ -1,81 +1,67 @@
 """Module for tracking uploaded files."""
 import os
-import json
 import logging
-from typing import Set, Dict
 from datetime import datetime
+from typing import Dict, Optional
+
+from sqlalchemy import create_engine, Column, String, DateTime
+from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.exc import SQLAlchemyError
+
+Base = declarative_base()
+
+class UploadRecord(Base):
+    __tablename__ = 'upload_records'
+    
+    file_key = Column(String, primary_key=True)
+    uploaded_at = Column(DateTime, nullable=False)
+    original_path = Column(String, nullable=False)
+    prefix = Column(String, nullable=False)
 
 class UploadTracker:
-    def __init__(self, tracker_file: str = "upload_history.json"):
+    def __init__(self, db_url: str = "postgresql://upload_user:upload_pass@localhost:5432/upload_tracker"):
         """Initialize the upload tracker.
         
         Args:
-            tracker_file: Path to the JSON file that stores upload history
+            db_url: Database connection URL
         """
-        self.tracker_file = tracker_file
-        self.history = self._load_history()
-
-    def _load_history(self) -> Dict:
-        """Load upload history from file.
-        
-        Raises:
-            ValueError: If the tracker file exists but contains malformed JSON
-        """
-        if os.path.exists(self.tracker_file):
-            try:
-                with open(self.tracker_file, 'r') as f:
-                    return json.load(f)
-            except json.JSONDecodeError as e:
-                error_msg = f"Malformed JSON in tracker file {self.tracker_file}: {str(e)}"
-                logging.error(error_msg)
-                raise ValueError(error_msg)
-        return {}
-
-    def _save_history(self):
-        """Save upload history to file."""
-        try:
-            with open(self.tracker_file, 'w') as f:
-                json.dump(self.history, f, indent=2)
-        except Exception as e:
-            logging.error(f"Error saving tracker file: {e}")
+        self.engine = create_engine(db_url)
+        Base.metadata.create_all(self.engine)
+        self.Session = sessionmaker(bind=self.engine)
 
     def is_uploaded(self, file_path: str, prefix: str) -> bool:
-        """Check if a file has been uploaded.
-        
-        Args:
-            file_path: Path to the file
-            prefix: S3 prefix where the file was uploaded
-            
-        Returns:
-            True if the file has been uploaded, False otherwise
-        """
+        """Check if a file has been uploaded."""
         file_key = f"{prefix}/{os.path.basename(file_path)}"
-        return file_key in self.history
+        with self.Session() as session:
+            return session.query(UploadRecord).filter_by(file_key=file_key).first() is not None
 
     def mark_uploaded(self, file_path: str, prefix: str):
-        """Mark a file as uploaded.
-        
-        Args:
-            file_path: Path to the file
-            prefix: S3 prefix where the file was uploaded
-        """
+        """Mark a file as uploaded."""
         file_key = f"{prefix}/{os.path.basename(file_path)}"
-        self.history[file_key] = {
-            "uploaded_at": datetime.now().isoformat(),
-            "original_path": file_path,
-            "prefix": prefix
-        }
-        self._save_history()
+        with self.Session() as session:
+            try:
+                record = UploadRecord(
+                    file_key=file_key,
+                    uploaded_at=datetime.now(),
+                    original_path=file_path,
+                    prefix=prefix
+                )
+                session.merge(record)  # merge will update if exists, insert if not
+                session.commit()
+            except SQLAlchemyError as e:
+                session.rollback()
+                logging.error(f"Error marking file as uploaded: {e}")
+                raise
 
-    def get_upload_info(self, file_path: str, prefix: str) -> Dict:
-        """Get upload information for a file.
-        
-        Args:
-            file_path: Path to the file
-            prefix: S3 prefix where the file was uploaded
-            
-        Returns:
-            Dictionary with upload information or None if not found
-        """
+    def get_upload_info(self, file_path: str, prefix: str) -> Optional[Dict]:
+        """Get upload information for a file."""
         file_key = f"{prefix}/{os.path.basename(file_path)}"
-        return self.history.get(file_key)
+        with self.Session() as session:
+            record = session.query(UploadRecord).filter_by(file_key=file_key).first()
+            if record:
+                return {
+                    "uploaded_at": record.uploaded_at.isoformat(),
+                    "original_path": record.original_path,
+                    "prefix": record.prefix
+                }
+            return None

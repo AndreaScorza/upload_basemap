@@ -10,7 +10,8 @@ package-mode = false
 python = "^3.11"
 boto3 = "^1.35.87"
 python-dotenv = "^1.0.1"
-
+psycopg2-binary = "^2.9.9"
+sqlalchemy = "^2.0.25"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
