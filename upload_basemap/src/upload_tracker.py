@@ -16,14 +16,19 @@ class UploadTracker:
         self.history = self._load_history()
 
     def _load_history(self) -> Dict:
-        """Load upload history from file."""
+        """Load upload history from file.
+        
+        Raises:
+            ValueError: If the tracker file exists but contains malformed JSON
+        """
         if os.path.exists(self.tracker_file):
             try:
                 with open(self.tracker_file, 'r') as f:
                     return json.load(f)
-            except json.JSONDecodeError:
-                logging.error(f"Error reading tracker file {self.tracker_file}")
-                return {}
+            except json.JSONDecodeError as e:
+                error_msg = f"Malformed JSON in tracker file {self.tracker_file}: {str(e)}"
+                logging.error(error_msg)
+                raise ValueError(error_msg)
         return {}
 
     def _save_history(self):
