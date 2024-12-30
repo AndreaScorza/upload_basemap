@@ -52,35 +52,38 @@ def clear_progress():
         logging.warning(f"Could not remove progress file: {e}")
 
 def process_batch(
-    files_batch: List[Tuple[str, str]], 
+    files_batch: List[Tuple[str, str, int]], 
     tracker: UploadTracker, 
     bucket_name: str
-) -> Tuple[int, List[Tuple[str, str, str]]]:
+) -> Tuple[int, int]:
     """Process a batch of files.
     
     Args:
-        files_batch: List of (file_path, prefix) tuples
+        files_batch: List of (file_path, prefix, skipped_count) tuples
         tracker: Upload tracker instance
         bucket_name: S3 bucket name
         
     Returns:
-        Tuple of (successful uploads, failed uploads)
-        Failed uploads is a list of (file_path, prefix, error_message)
+        Tuple of (successful uploads, skipped files)
         
     Raises:
         Any exception that occurs during upload will be re-raised
     """
     successful = 0
+    skipped = 0
 
-    for file_path, prefix in files_batch:
+    for file_path, prefix, skipped_count in files_batch:
+        # Add the skipped files from find_tiff_files
+        skipped += skipped_count
+        
         logging.info(f"Uploading {file_path} to {bucket_name}/{prefix}")
         # Any error here will be raised immediately
         upload_to_s3(file_path, bucket_name, prefix)
         tracker.mark_uploaded(file_path, prefix)
         successful += 1
-        save_progress(successful, 0)
+        save_progress(successful, skipped)
 
-    return successful, []
+    return successful, skipped
 
 def main():
     """Main entry point for the upload script."""
@@ -113,23 +116,25 @@ def main():
         # Load previous progress
         progress = load_progress()
         total_successful = progress['total_successful']
-        failed_uploads = []
+        total_skipped = progress['total_skipped']
 
         # Process files in batches
         current_batch = []
         try:
-            for file_path, prefix in find_tiff_files(basemaps_dir, resume=True):
-                current_batch.append((file_path, prefix))
+            for file_path, prefix, skipped_count in find_tiff_files(basemaps_dir, resume=True):
+                current_batch.append((file_path, prefix, skipped_count))
                 
                 if len(current_batch) >= batch_size:
-                    successful, _ = process_batch(current_batch, tracker, bucket_name)
+                    successful, skipped = process_batch(current_batch, tracker, bucket_name)
                     total_successful += successful
+                    total_skipped += skipped
                     current_batch = []
 
             # Process remaining files
             if current_batch:
-                successful, _ = process_batch(current_batch, tracker, bucket_name)
+                successful, skipped = process_batch(current_batch, tracker, bucket_name)
                 total_successful += successful
+                total_skipped += skipped
 
         except Exception as e:
             logging.error(f"Error during upload process: {e}", exc_info=True)
@@ -140,6 +145,7 @@ def main():
         elapsed_time = time.time() - start_time
         logging.info(f"\nUpload process completed in {elapsed_time:.2f} seconds")
         logging.info(f"Successfully uploaded: {total_successful} files")
+        logging.info(f"Skipped (already uploaded): {total_skipped} files")
 
         # Clear progress and resume files on successful completion
         clear_progress()

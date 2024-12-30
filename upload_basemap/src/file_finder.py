@@ -9,11 +9,15 @@ RESUME_FILE = "upload_resume.json"
 
 def save_resume_point(subdir: str, last_file: str):
     """Save the current position to resume file."""
-    with open(RESUME_FILE, 'w') as f:
-        json.dump({
-            'last_subdir': subdir,
-            'last_file': last_file
-        }, f)
+    try:
+        with open(RESUME_FILE, 'w') as f:
+            json.dump({
+                'last_subdir': subdir,
+                'last_file': last_file
+            }, f)
+        logging.debug(f"Saved resume point: {subdir}/{last_file}")
+    except IOError as e:
+        logging.error(f"Could not save resume point: {e}")
 
 def get_resume_point() -> Tuple[Optional[str], Optional[str]]:
     """Get the last processed position."""
@@ -31,10 +35,11 @@ def clear_resume_point():
     try:
         if os.path.exists(RESUME_FILE):
             os.remove(RESUME_FILE)
+            logging.debug("Cleared resume point")
     except OSError as e:
         logging.warning(f"Could not remove resume file: {e}")
 
-def find_tiff_files(base_dir: str, resume: bool = True) -> Generator[Tuple[str, str], None, None]:
+def find_tiff_files(base_dir: str, resume: bool = True) -> Generator[Tuple[str, str, int], None, None]:
     """Find all TIFF files in the given directory and its subdirectories that need to be uploaded.
     
     Args:
@@ -42,9 +47,10 @@ def find_tiff_files(base_dir: str, resume: bool = True) -> Generator[Tuple[str, 
         resume: Whether to resume from last position
         
     Yields:
-        Tuples (file_path, prefix) where:
+        Tuples (file_path, prefix, skipped_count) where:
         - file_path is the absolute path to the TIFF file
         - prefix is the folder name (e.g., 'regions' or 'regions_buildings')
+        - skipped_count is the number of files skipped since last yield
         Only yields files that are not already in the database.
         
     Raises:
@@ -70,6 +76,7 @@ def find_tiff_files(base_dir: str, resume: bool = True) -> Generator[Tuple[str, 
     
     # Initialize upload tracker to check database
     tracker = UploadTracker()
+    current_skipped = 0  # Track skipped files since last yield
     
     for subdir in subdirs:
         dir_path = os.path.join(base_dir, subdir)
@@ -106,13 +113,17 @@ def find_tiff_files(base_dir: str, resume: bool = True) -> Generator[Tuple[str, 
                     # Check if file is already in database
                     if tracker.is_uploaded(file_path, subdir):
                         skipped_files[subdir] += 1
+                        current_skipped += 1
+                        # Save resume point for skipped files too
+                        save_resume_point(subdir, filename)
                         if skipped_files[subdir] % 100 == 0:  # Log every 100 skipped files
                             logging.info(f"Skipped {skipped_files[subdir]} already uploaded files in {subdir}")
                         continue
                     
-                    # Only yield and save resume point for files that need uploading
-                    yield (file_path, subdir)
+                    # Save resume point before yielding in case of error during upload
                     save_resume_point(subdir, filename)
+                    yield (file_path, subdir, current_skipped)
+                    current_skipped = 0  # Reset counter after yielding
                 
                 if total_files[subdir] == 0:
                     logging.warning(f"No .tif files found in {dir_path}")
