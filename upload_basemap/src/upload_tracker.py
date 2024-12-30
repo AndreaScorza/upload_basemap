@@ -25,7 +25,12 @@ class UploadTracker:
         Args:
             db_url: Database connection URL
         """
-        self.engine = create_engine(db_url)
+        self.engine = create_engine(
+            db_url,
+            pool_size=10,  # Maintain up to 10 connections in the pool
+            max_overflow=20,  # Allow up to 20 additional connections
+            pool_pre_ping=True  # Verify connections before using them
+        )
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
 

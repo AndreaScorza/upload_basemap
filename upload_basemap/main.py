@@ -3,12 +3,13 @@
 import os
 import sys
 import time
+import json
 import logging
 from typing import List, Tuple
 from itertools import islice
 from dotenv import load_dotenv
 from botocore.exceptions import ClientError
-from .src.file_finder import find_tiff_files
+from .src.file_finder import find_tiff_files, clear_resume_point
 from .src.s3_upload import upload_to_s3
 from .src.upload_tracker import UploadTracker
 
@@ -17,6 +18,37 @@ logging.basicConfig(
     level=logging.INFO, 
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
+
+PROGRESS_FILE = "upload_progress.json"
+
+def load_progress():
+    """Load progress from file."""
+    try:
+        if os.path.exists(PROGRESS_FILE):
+            with open(PROGRESS_FILE, 'r') as f:
+                return json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        logging.warning(f"Could not read progress file: {e}")
+    return {'total_successful': 0, 'total_skipped': 0}
+
+def save_progress(total_successful: int, total_skipped: int):
+    """Save current progress to file."""
+    try:
+        with open(PROGRESS_FILE, 'w') as f:
+            json.dump({
+                'total_successful': total_successful,
+                'total_skipped': total_skipped
+            }, f)
+    except IOError as e:
+        logging.warning(f"Could not save progress: {e}")
+
+def clear_progress():
+    """Clear progress file after successful completion."""
+    try:
+        if os.path.exists(PROGRESS_FILE):
+            os.remove(PROGRESS_FILE)
+    except OSError as e:
+        logging.warning(f"Could not remove progress file: {e}")
 
 def process_batch(
     files_batch: List[Tuple[str, str]], 
@@ -67,14 +99,14 @@ def process_batch(
             logging.error(f"Failed to upload {file_path}: {error_msg}")
             failed.append((file_path, prefix, error_msg))
 
+        # Save progress after each file
+        save_progress(successful, skipped)
+
     return successful, skipped, failed
 
 def main():
     """Main entry point for the upload script."""
     start_time = time.time()
-    total_successful = 0
-    total_skipped = 0
-    failed_uploads = []
     batch_size = 100  # Process files in batches of 100
 
     try:
@@ -92,9 +124,15 @@ def main():
         # Initialize upload tracker
         tracker = UploadTracker()
 
+        # Load previous progress
+        progress = load_progress()
+        total_successful = progress['total_successful']
+        total_skipped = progress['total_skipped']
+        failed_uploads = []
+
         # Process files in batches
         current_batch = []
-        for file_path, prefix in find_tiff_files(basemaps_dir):
+        for file_path, prefix in find_tiff_files(basemaps_dir, resume=True):
             current_batch.append((file_path, prefix))
             
             if len(current_batch) >= batch_size:
@@ -126,9 +164,14 @@ def main():
                     f.write(f"{file_path}\t{prefix}\t{error}\n")
             logging.error(f"Failed uploads have been written to {error_file}")
             sys.exit(1)
+        else:
+            # Clear progress and resume files on successful completion
+            clear_progress()
+            clear_resume_point()
 
     except KeyboardInterrupt:
         logging.info("\nUpload process interrupted by user")
+        logging.info(f"Progress saved. Run again to resume from {total_successful + total_skipped} files")
         sys.exit(130)
     except Exception as e:
         logging.error(f"Upload process failed: {e}")
