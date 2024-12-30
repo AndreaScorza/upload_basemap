@@ -3,6 +3,7 @@ import os
 import json
 from typing import Generator, Tuple, Optional
 import logging
+from .upload_tracker import UploadTracker
 
 RESUME_FILE = "upload_resume.json"
 
@@ -34,7 +35,7 @@ def clear_resume_point():
         logging.warning(f"Could not remove resume file: {e}")
 
 def find_tiff_files(base_dir: str, resume: bool = True) -> Generator[Tuple[str, str], None, None]:
-    """Find all TIFF files in the given directory and its subdirectories.
+    """Find all TIFF files in the given directory and its subdirectories that need to be uploaded.
     
     Args:
         base_dir: Base directory to search for TIFF files
@@ -44,6 +45,7 @@ def find_tiff_files(base_dir: str, resume: bool = True) -> Generator[Tuple[str, 
         Tuples (file_path, prefix) where:
         - file_path is the absolute path to the TIFF file
         - prefix is the folder name (e.g., 'regions' or 'regions_buildings')
+        Only yields files that are not already in the database.
         
     Raises:
         FileNotFoundError: If the base directory doesn't exist
@@ -53,6 +55,7 @@ def find_tiff_files(base_dir: str, resume: bool = True) -> Generator[Tuple[str, 
 
     subdirs = ['regions', 'regions_buildings']
     total_files = {subdir: 0 for subdir in subdirs}
+    skipped_files = {subdir: 0 for subdir in subdirs}
     
     # Get resume point if requested
     last_subdir, last_file = get_resume_point() if resume else (None, None)
@@ -64,6 +67,9 @@ def find_tiff_files(base_dir: str, resume: bool = True) -> Generator[Tuple[str, 
         if last_subdir in subdirs:
             idx = subdirs.index(last_subdir)
             subdirs = subdirs[idx:] + subdirs[:idx]
+    
+    # Initialize upload tracker to check database
+    tracker = UploadTracker()
     
     for subdir in subdirs:
         dir_path = os.path.join(base_dir, subdir)
@@ -83,9 +89,12 @@ def find_tiff_files(base_dir: str, resume: bool = True) -> Generator[Tuple[str, 
                 start_idx = 0
                 if resume_mode and subdir == last_subdir and last_file:
                     try:
-                        start_idx = files.index(os.path.basename(last_file)) + 1
+                        # Start from the last file
+                        start_idx = files.index(os.path.basename(last_file))
+                        logging.info(f"Starting from index {start_idx} in {subdir}")
                     except ValueError:
                         # File not found, start from beginning of this directory
+                        logging.warning(f"Resume file {last_file} not found in {subdir}, starting from beginning")
                         pass
                     resume_mode = False  # Turn off resume mode after finding start point
                 
@@ -93,13 +102,25 @@ def find_tiff_files(base_dir: str, resume: bool = True) -> Generator[Tuple[str, 
                 for filename in files[start_idx:]:
                     file_path = os.path.join(dir_path, filename)
                     total_files[subdir] += 1
-                    save_resume_point(subdir, filename)
+                    
+                    # Check if file is already in database
+                    if tracker.is_uploaded(file_path, subdir):
+                        skipped_files[subdir] += 1
+                        if skipped_files[subdir] % 100 == 0:  # Log every 100 skipped files
+                            logging.info(f"Skipped {skipped_files[subdir]} already uploaded files in {subdir}")
+                        continue
+                    
+                    # Only yield and save resume point for files that need uploading
                     yield (file_path, subdir)
+                    save_resume_point(subdir, filename)
                 
                 if total_files[subdir] == 0:
                     logging.warning(f"No .tif files found in {dir_path}")
                 else:
-                    logging.info(f"Found {total_files[subdir]} TIFF files in {subdir}/")
+                    logging.info(
+                        f"Found {total_files[subdir]} TIFF files in {subdir}/, "
+                        f"skipped {skipped_files[subdir]} already uploaded files"
+                    )
                     
         except PermissionError:
             logging.error(f"Permission denied accessing {dir_path}")
@@ -109,8 +130,10 @@ def find_tiff_files(base_dir: str, resume: bool = True) -> Generator[Tuple[str, 
             continue
     
     total = sum(total_files.values())
+    total_skipped = sum(skipped_files.values())
     if total == 0:
         logging.warning(f"No TIFF files found in any subdirectory of {base_dir}")
     else:
+        logging.info(f"Total files processed: {total}, already uploaded: {total_skipped}")
         # Clear resume point after successful completion
         clear_resume_point()

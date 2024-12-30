@@ -67,20 +67,10 @@ def process_batch(
         Failed uploads is a list of (file_path, prefix, error_message)
     """
     successful = 0
-    skipped = 0
     failed = []
 
     for file_path, prefix in files_batch:
         try:
-            # Skip if already uploaded
-            if tracker.is_uploaded(file_path, prefix):
-                upload_info = tracker.get_upload_info(file_path, prefix)
-                logging.info(
-                    f"Skipping {file_path} - already uploaded on {upload_info['uploaded_at']}"
-                )
-                skipped += 1
-                continue
-
             logging.info(f"Uploading {file_path} to {bucket_name}/{prefix}")
             try:
                 upload_to_s3(file_path, bucket_name, prefix)
@@ -100,9 +90,9 @@ def process_batch(
             failed.append((file_path, prefix, error_msg))
 
         # Save progress after each file
-        save_progress(successful, skipped)
+        save_progress(successful, 0)  # No skipped files since we filter them out earlier
 
-    return successful, skipped, failed
+    return successful, 0, failed  # Return 0 for skipped since we filter them out earlier
 
 def main():
     """Main entry point for the upload script."""
