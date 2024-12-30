@@ -8,10 +8,11 @@ import logging
 from typing import List, Tuple
 from itertools import islice
 from dotenv import load_dotenv
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, BotoCoreError, NoCredentialsError
 from .src.file_finder import find_tiff_files, clear_resume_point
 from .src.s3_upload import upload_to_s3
 from .src.upload_tracker import UploadTracker
+import boto3
 
 # Configure logging
 logging.basicConfig(
@@ -54,7 +55,7 @@ def process_batch(
     files_batch: List[Tuple[str, str]], 
     tracker: UploadTracker, 
     bucket_name: str
-) -> Tuple[int, int, List[Tuple[str, str, str]]]:
+) -> Tuple[int, List[Tuple[str, str, str]]]:
     """Process a batch of files.
     
     Args:
@@ -63,36 +64,23 @@ def process_batch(
         bucket_name: S3 bucket name
         
     Returns:
-        Tuple of (successful uploads, skipped files, failed uploads)
+        Tuple of (successful uploads, failed uploads)
         Failed uploads is a list of (file_path, prefix, error_message)
+        
+    Raises:
+        Any exception that occurs during upload will be re-raised
     """
     successful = 0
-    failed = []
 
     for file_path, prefix in files_batch:
-        try:
-            logging.info(f"Uploading {file_path} to {bucket_name}/{prefix}")
-            try:
-                upload_to_s3(file_path, bucket_name, prefix)
-                tracker.mark_uploaded(file_path, prefix)
-                successful += 1
-            except ClientError as e:
-                if e.response["Error"]["Code"] == "404":
-                    raise
-                # If file exists in S3 (and any other S3 error), still track it
-                logging.info(f"File exists in S3, tracking it in upload history")
-                tracker.mark_uploaded(file_path, prefix)
-                successful += 1
+        logging.info(f"Uploading {file_path} to {bucket_name}/{prefix}")
+        # Any error here will be raised immediately
+        upload_to_s3(file_path, bucket_name, prefix)
+        tracker.mark_uploaded(file_path, prefix)
+        successful += 1
+        save_progress(successful, 0)
 
-        except Exception as e:
-            error_msg = str(e)
-            logging.error(f"Failed to upload {file_path}: {error_msg}")
-            failed.append((file_path, prefix, error_msg))
-
-        # Save progress after each file
-        save_progress(successful, 0)  # No skipped files since we filter them out earlier
-
-    return successful, 0, failed  # Return 0 for skipped since we filter them out earlier
+    return successful, []
 
 def main():
     """Main entry point for the upload script."""
@@ -108,8 +96,16 @@ def main():
         basemaps_dir = os.environ.get("BASEMAPS_DIR")
         if not bucket_name or not basemaps_dir:
             raise ValueError(
-                "BUCKET_NAME or BASEMAPS_DIR not found in environment variables. Please create a .env file with these variables."
+                "BUCKET_NAME or BASEMAPS_DIR not found in environment variables. "
+                "Please create a .env file with these variables."
             )
+
+        # Test S3 credentials early
+        try:
+            boto3.client('s3').list_buckets()
+        except (BotoCoreError, NoCredentialsError) as e:
+            logging.error(f"Failed to authenticate with AWS: {e}")
+            sys.exit(1)
 
         # Initialize upload tracker
         tracker = UploadTracker()
@@ -117,54 +113,44 @@ def main():
         # Load previous progress
         progress = load_progress()
         total_successful = progress['total_successful']
-        total_skipped = progress['total_skipped']
         failed_uploads = []
 
         # Process files in batches
         current_batch = []
-        for file_path, prefix in find_tiff_files(basemaps_dir, resume=True):
-            current_batch.append((file_path, prefix))
-            
-            if len(current_batch) >= batch_size:
-                successful, skipped, failed = process_batch(current_batch, tracker, bucket_name)
-                total_successful += successful
-                total_skipped += skipped
-                failed_uploads.extend(failed)
-                current_batch = []
+        try:
+            for file_path, prefix in find_tiff_files(basemaps_dir, resume=True):
+                current_batch.append((file_path, prefix))
+                
+                if len(current_batch) >= batch_size:
+                    successful, _ = process_batch(current_batch, tracker, bucket_name)
+                    total_successful += successful
+                    current_batch = []
 
-        # Process remaining files
-        if current_batch:
-            successful, skipped, failed = process_batch(current_batch, tracker, bucket_name)
-            total_successful += successful
-            total_skipped += skipped
-            failed_uploads.extend(failed)
+            # Process remaining files
+            if current_batch:
+                successful, _ = process_batch(current_batch, tracker, bucket_name)
+                total_successful += successful
+
+        except Exception as e:
+            logging.error(f"Error during upload process: {e}", exc_info=True)
+            # Save the current file as resume point - it will be retried next time
+            sys.exit(1)
 
         # Log summary
         elapsed_time = time.time() - start_time
         logging.info(f"\nUpload process completed in {elapsed_time:.2f} seconds")
         logging.info(f"Successfully uploaded: {total_successful} files")
-        logging.info(f"Skipped (already uploaded): {total_skipped} files")
-        logging.info(f"Failed uploads: {len(failed_uploads)} files")
 
-        # Write failed uploads to a file if any
-        if failed_uploads:
-            error_file = "failed_uploads.txt"
-            with open(error_file, "w") as f:
-                for file_path, prefix, error in failed_uploads:
-                    f.write(f"{file_path}\t{prefix}\t{error}\n")
-            logging.error(f"Failed uploads have been written to {error_file}")
-            sys.exit(1)
-        else:
-            # Clear progress and resume files on successful completion
-            clear_progress()
-            clear_resume_point()
+        # Clear progress and resume files on successful completion
+        clear_progress()
+        clear_resume_point()
 
     except KeyboardInterrupt:
         logging.info("\nUpload process interrupted by user")
-        logging.info(f"Progress saved. Run again to resume from {total_successful + total_skipped} files")
+        logging.info(f"Progress saved. Run again to resume from last position.")
         sys.exit(130)
     except Exception as e:
-        logging.error(f"Upload process failed: {e}")
+        logging.error(f"Upload process failed: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":
